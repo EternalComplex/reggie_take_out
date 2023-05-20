@@ -18,7 +18,7 @@ import java.sql.SQLIntegrityConstraintViolationException;
 public class GlobalExceptionHandler {
 
     /**
-     * 异常处理方法
+     * 唯一约束字段重复的异常处理方法
      * @return 返回错误信息
      */
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
@@ -28,5 +28,14 @@ public class GlobalExceptionHandler {
             return R.error(msg);
         }
         return R.error("未知错误");
+    }
+
+    /**
+     * 自定义业务异常的异常处理方法
+     * @return 返回错误信息
+     */
+    @ExceptionHandler(CustomException.class)
+    public R<String> exceptionHandler(CustomException e) {
+        return R.error(e.getMessage());
     }
 }
