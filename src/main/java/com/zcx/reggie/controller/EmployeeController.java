@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Slf4j
 @RestController
@@ -114,5 +115,23 @@ public class EmployeeController {
         employeeService.page(pageInfo, queryWrapper);
 
         return R.success(pageInfo);
+    }
+
+    /**
+     * 根据员工id修改信息
+     * @param employee 员工信息
+     * @return 返回修改结果
+     */
+    @PutMapping
+    public R<String> update(HttpServletRequest request, @RequestBody Employee employee) {
+        // 若某一字段为null，MP会保留原有值
+        // 由于雪花算法生成的Long类型的18位id会导致前端js精度的缺失（16位），所以通过在配置类WebMvcConfig中扩展消息转换器，将id转为String传到前端，以此解决传来的id精度缺失
+        Long empId = (Long) request.getSession().getAttribute("employee");
+        employee.setUpdateTime(LocalDateTime.now());
+        employee.setUpdateUser(empId);
+
+        employeeService.updateById(employee);
+
+        return R.success("员工信息修改成功");
     }
 }
