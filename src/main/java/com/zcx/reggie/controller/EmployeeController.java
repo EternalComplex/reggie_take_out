@@ -82,10 +82,12 @@ public class EmployeeController {
     public R<String> save(HttpServletRequest request, @RequestBody Employee employee) {
         // 补充空缺字段
         employee.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));
-        employee.setCreateTime(LocalDateTime.now());
-        employee.setUpdateTime(LocalDateTime.now());
-        employee.setCreateUser((Long) request.getSession().getAttribute("employee"));
-        employee.setUpdateUser((Long) request.getSession().getAttribute("employee"));
+
+        // 以下代码使用 公共字段自动填充 的方法实现
+//        employee.setCreateTime(LocalDateTime.now());
+//        employee.setUpdateTime(LocalDateTime.now());
+//        employee.setCreateUser((Long) request.getSession().getAttribute("employee"));
+//        employee.setUpdateUser((Long) request.getSession().getAttribute("employee"));
 
         employeeService.save(employee);
 
@@ -126,9 +128,11 @@ public class EmployeeController {
     public R<String> update(HttpServletRequest request, @RequestBody Employee employee) {
         // 若某一字段为null，MP会保留原有值
         // 由于雪花算法生成的Long类型的18位id会导致前端js精度的缺失（16位），所以通过在配置类WebMvcConfig中扩展消息转换器，将id转为String传到前端，以此解决传来的id精度缺失
-        Long empId = (Long) request.getSession().getAttribute("employee");
-        employee.setUpdateTime(LocalDateTime.now());
-        employee.setUpdateUser(empId);
+
+        // 以下代码使用 公共字段自动填充 的方法实现
+//        Long empId = (Long) request.getSession().getAttribute("employee");
+//        employee.setUpdateTime(LocalDateTime.now());
+//        employee.setUpdateUser(empId);
 
         employeeService.updateById(employee);
 

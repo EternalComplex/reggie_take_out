@@ -1,6 +1,7 @@
 package com.zcx.reggie.filter;
 
 import com.alibaba.fastjson.JSON;
+import com.zcx.reggie.common.BaseContext;
 import com.zcx.reggie.common.R;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.AntPathMatcher;
@@ -49,9 +50,13 @@ public class LoginCheckFilter implements Filter {
         }
 
         // 根据登录状态判断是否放行
-        Object employee = request.getSession().getAttribute("employee");
-        if (employee != null) {
-            log.info("用户已登录，用户ID为：{}", employee);
+        Long empId = (Long) request.getSession().getAttribute("employee");
+        if (empId != null) {
+            log.info("用户已登录，用户ID为：{}", empId);
+
+            // 将当前登录用户id存到ThreadLocal中去，以供自定义的元数据对象处理器获取
+            BaseContext.setCurrentId(empId);
+
             filterChain.doFilter(request, response);
             return;
         }
