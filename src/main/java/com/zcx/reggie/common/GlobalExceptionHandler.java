@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
     public R<String> exceptionHandler(SQLIntegrityConstraintViolationException e) {
         if (e.getMessage().contains("Duplicate entry")) {
-            String msg = "账号[" + e.getMessage().split(" ")[2].replace("'", "") + "]已存在";
+            String msg = "[" + e.getMessage().split(" ")[2].replace("'", "") + "]已存在";
             return R.error(msg);
         }
         return R.error("未知错误");
