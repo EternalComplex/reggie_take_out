@@ -94,4 +94,54 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
 
         return dishDtoPageInfo;
     }
+
+    /**
+     * 根据菜品id查询菜品信息和口味信息
+     * @param id 菜品id
+     * @return 返回查询结果
+     */
+    @Override
+    public DishDto getByIdWithFlavor(Long id) {
+        DishDto dishDto = new DishDto();
+
+        // 查询菜品信息
+        Dish dish = this.getById(id);
+
+        // 查询口味信息
+        LambdaQueryWrapper<DishFlavor> dishFlavorLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        dishFlavorLambdaQueryWrapper.eq(DishFlavor::getDishId, id);
+        List<DishFlavor> flavors = dishFlavorService.list(dishFlavorLambdaQueryWrapper);
+
+        // 将查询到的信息拷贝到DishDto对象中
+        BeanUtils.copyProperties(dish, dishDto);
+        dishDto.setFlavors(flavors);
+
+        return dishDto;
+    }
+
+    /**
+     * 更新菜品信息和口味信息
+     * @param dishDto 封装有菜品信息、口味信息的对象
+     */
+    @Override
+    @Transactional
+    public void updateWithFlavor(DishDto dishDto) {
+        // 更新菜品信息
+        this.updateById(dishDto);
+
+        // 清空原有的口味信息
+        LambdaQueryWrapper<DishFlavor> dishFlavorLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        dishFlavorLambdaQueryWrapper.eq(DishFlavor::getDishId, dishDto.getId());
+
+        dishFlavorService.remove(dishFlavorLambdaQueryWrapper);
+
+        // 添加更新后的口味信息
+        // 完善dish_flavor表的所需的菜品id字段
+        List<DishFlavor> dishFlavors = dishDto.getFlavors()
+                .stream()
+                .peek(flavor -> flavor.setDishId(dishDto.getId()))
+                .collect(Collectors.toList());
+
+        dishFlavorService.saveBatch(dishDto.getFlavors());
+    }
 }

@@ -26,7 +26,7 @@ public class DishController {
 
     /**
      * 新增菜品
-     * @param dishDto 根据前端传递数据封装的类
+     * @param dishDto 封装有菜品信息、口味信息的对象
      * @return 返回新增结果
      */
     @PostMapping
@@ -53,4 +53,28 @@ public class DishController {
         return R.success(dishDtoPageInfo);
     }
 
+    /**
+     * 根据id查询菜品信息和口味信息
+     * @param id 菜品id
+     * @return 返回查询结果
+     */
+    @GetMapping("/{id}")
+    public R<DishDto> get(@PathVariable Long id) {
+        DishDto dishDto = dishService.getByIdWithFlavor(id);
+        return R.success(dishDto);
+    }
+
+    /**
+     * 修改菜品
+     * @param dishDto 封装有菜品信息、口味信息的对象
+     * @return 返回修改结果
+     */
+    @PutMapping
+    public R<String> update(@RequestBody DishDto dishDto) {
+        log.info(String.valueOf(dishDto));
+
+        dishService.updateWithFlavor(dishDto);
+
+        return R.success("修改菜品成功");
+    }
 }
