@@ -16,6 +16,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.UUID;
 
+/**
+ * 通用模块
+ */
 @Slf4j
 @RestController
 @RequestMapping("/common")
