@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
 
 /**
  * 菜品管理
@@ -76,5 +77,34 @@ public class DishController {
         dishService.updateWithFlavor(dishDto);
 
         return R.success("修改菜品成功");
+    }
+
+    /**
+     * 批量起售/停售
+     * @param st 1: 起售 0: 停售
+     * @param ids 菜品id
+     * @return 返回更改结果
+     */
+    @PostMapping("/status/{st}")
+    public R<String> status(@PathVariable int st,String ids) {
+        log.info(ids);
+
+        dishService.updateStatusByIds(st, ids);
+
+        return R.success("菜品状态更改成功");
+    }
+
+    /**
+     * 批量删除菜品信息
+     * @param ids 菜品id
+     * @return 返回删除结果
+     */
+    @DeleteMapping
+    public R<String> delete(String ids) {
+        log.info(ids);
+
+        dishService.removeByIds(Arrays.asList(ids.split(",")));
+
+        return R.success("菜品信息删除成功");
     }
 }

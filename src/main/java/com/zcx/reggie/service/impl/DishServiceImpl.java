@@ -144,4 +144,19 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
 
         dishFlavorService.saveBatch(dishDto.getFlavors());
     }
+
+    /**
+     * 批量起售/停售菜品
+     * @param st status字段的值，1表示起售，0表示停售
+     * @param ids 菜品id
+     */
+    @Override
+    public void updateStatusByIds(int st, String ids) {
+        for (String id: ids.split(",")) {
+            Dish dish = this.getById(id);
+            dish.setStatus(st);
+
+            this.updateById(dish);
+        }
+    }
 }
