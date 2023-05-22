@@ -1,6 +1,8 @@
 package com.zcx.reggie.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zcx.reggie.bean.Dish;
 import com.zcx.reggie.common.R;
 import com.zcx.reggie.dto.DishDto;
 import com.zcx.reggie.service.CategoryService;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * 菜品管理
@@ -106,5 +109,25 @@ public class DishController {
         dishService.removeByIds(Arrays.asList(ids.split(",")));
 
         return R.success("菜品信息删除成功");
+    }
+
+
+    /**
+     * 根据条件查询菜品数据
+     * @param dish 查询条件
+     * @return 返回查询数据
+     */
+    @GetMapping("/list")
+    public R<List<Dish>> list(Dish dish) {
+        LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper
+                .eq(dish.getCategoryId() != null, Dish::getCategoryId, dish.getCategoryId())
+                .eq(Dish::getStatus, 1)
+                .orderByDesc(Dish::getSort)
+                .orderByDesc(Dish::getUpdateTime);
+
+        List<Dish> dishList = dishService.list(queryWrapper);
+
+        return R.success(dishList);
     }
 }
