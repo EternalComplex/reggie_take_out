@@ -27,7 +27,9 @@ public class LoginCheckFilter implements Filter {
             "/employee/logout",
             "/backend/**",
             "/front/**",
-            "/common/**"
+            "/common/**",
+            "/user/sendMsg",
+            "/user/login"
     };
 
     @Override
@@ -57,6 +59,18 @@ public class LoginCheckFilter implements Filter {
 
             // 将当前登录用户id存到ThreadLocal中去，以供自定义的元数据对象处理器获取
             BaseContext.setCurrentId(empId);
+
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // 根据登录状态判断是否放行(移动端)
+        Long userId = (Long) request.getSession().getAttribute("user");
+        if (userId != null) {
+            log.info("用户已登录，用户ID为：{}", userId);
+
+            // 将当前登录用户id存到ThreadLocal中去，以供自定义的元数据对象处理器获取
+            BaseContext.setCurrentId(userId);
 
             filterChain.doFilter(request, response);
             return;
