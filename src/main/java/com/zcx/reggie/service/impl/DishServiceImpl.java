@@ -159,4 +159,43 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
             this.updateById(dish);
         }
     }
+
+    /**
+     * 根据条件查询菜品数据(同时包含口味信息)
+     * @param dish 查询条件
+     * @return 返回查询数据
+     */
+    @Override
+    public List<DishDto> getDishDtoList(Dish dish) {
+        LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper
+                .eq(dish.getCategoryId() != null, Dish::getCategoryId, dish.getCategoryId())
+                .eq(Dish::getStatus, 1)
+                .orderByDesc(Dish::getSort)
+                .orderByDesc(Dish::getUpdateTime);
+
+        List<Dish> dishList = this.list(queryWrapper);
+
+        return dishList.stream().map(item -> {
+            DishDto dishDto = new DishDto();
+
+            BeanUtils.copyProperties(item, dishDto);
+
+            // 添加菜品名字
+            Category category = categoryService.getById(item.getCategoryId());
+            if (category != null) {
+                dishDto.setCategoryName(category.getName());
+            }
+
+            // 添加口味信息
+            Long dishId = item.getId();
+            LambdaQueryWrapper<DishFlavor> dishFlavorLambdaQueryWrapper = new LambdaQueryWrapper<>();
+            dishFlavorLambdaQueryWrapper.eq(DishFlavor::getDishId, dishId);
+            List<DishFlavor> dishFlavorList = dishFlavorService.list(dishFlavorLambdaQueryWrapper);
+
+            dishDto.setFlavors(dishFlavorList);
+
+            return dishDto;
+        }).collect(Collectors.toList());
+    }
 }

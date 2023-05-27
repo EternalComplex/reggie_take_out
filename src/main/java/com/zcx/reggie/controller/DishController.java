@@ -1,6 +1,5 @@
 package com.zcx.reggie.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zcx.reggie.bean.Dish;
 import com.zcx.reggie.common.R;
@@ -112,22 +111,36 @@ public class DishController {
     }
 
 
+//    /**
+//     * 根据条件查询菜品数据
+//     * @param dish 查询条件
+//     * @return 返回查询数据
+//     */
+//    @GetMapping("/list")
+//    public R<List<Dish>> list(Dish dish) {
+//        LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
+//        queryWrapper
+//                .eq(dish.getCategoryId() != null, Dish::getCategoryId, dish.getCategoryId())
+//                .eq(Dish::getStatus, 1)
+//                .orderByDesc(Dish::getSort)
+//                .orderByDesc(Dish::getUpdateTime);
+//
+//        List<Dish> dishList = dishService.list(queryWrapper);
+//
+//        return R.success(dishList);
+//    }
+
     /**
-     * 根据条件查询菜品数据
+     * 根据条件查询菜品数据(同时包含口味信息)
      * @param dish 查询条件
      * @return 返回查询数据
      */
     @GetMapping("/list")
-    public R<List<Dish>> list(Dish dish) {
-        LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper
-                .eq(dish.getCategoryId() != null, Dish::getCategoryId, dish.getCategoryId())
-                .eq(Dish::getStatus, 1)
-                .orderByDesc(Dish::getSort)
-                .orderByDesc(Dish::getUpdateTime);
+    public R<List<DishDto>> list(Dish dish) {
+        log.info("查询条件：{}", dish);
 
-        List<Dish> dishList = dishService.list(queryWrapper);
+        List<DishDto> dishDtoList = dishService.getDishDtoList(dish);
 
-        return R.success(dishList);
+        return R.success(dishDtoList);
     }
 }

@@ -1,6 +1,8 @@
 package com.zcx.reggie.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zcx.reggie.bean.Setmeal;
 import com.zcx.reggie.common.R;
 import com.zcx.reggie.dto.SetmealDto;
 import com.zcx.reggie.service.SetmealDishService;
@@ -9,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * 套餐管理
@@ -75,5 +78,23 @@ public class SetmealController {
         setmealService.removeByIdWithDish(ids);
 
         return R.success("套餐信息删除成功");
+    }
+
+    /**
+     * 根据条件查询套餐数据
+     * @param setmeal 查询条件
+     * @return 返回查询结果
+     */
+    @GetMapping("/list")
+    public R<List<Setmeal>> list(Setmeal setmeal) {
+        log.info("查询条件：{}", setmeal);
+
+        LambdaQueryWrapper<Setmeal> setmealLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        setmealLambdaQueryWrapper.eq(setmeal.getCategoryId() != null, Setmeal::getCategoryId, setmeal.getCategoryId())
+                .eq(setmeal.getStatus() != null, Setmeal::getStatus, setmeal.getStatus())
+                .orderByDesc(Setmeal::getUpdateTime);
+        List<Setmeal> setmealList = setmealService.list(setmealLambdaQueryWrapper);
+
+        return R.success(setmealList);
     }
 }
