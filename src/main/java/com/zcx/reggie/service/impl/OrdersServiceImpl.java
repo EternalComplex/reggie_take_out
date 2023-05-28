@@ -115,12 +115,16 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
      * @return 返回数据
      */
     @Override
-    public Page<OrdersDto> pageForOrdersDto(int page, int pageSize) {
+    public Page<OrdersDto> pageForOrdersDto(int page, int pageSize, String number, String beginTime, String endTime) {
         Page<Orders> pageInfo = new Page<>(page, pageSize);
         Page<OrdersDto> ordersDtoPageInfo = new Page<>();
 
         LambdaQueryWrapper<Orders> ordersLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        ordersLambdaQueryWrapper.orderByDesc(Orders::getOrderTime);
+        ordersLambdaQueryWrapper
+                .like(number != null, Orders::getNumber, number)
+                .ge(beginTime != null, Orders::getOrderTime, beginTime)
+                .le(endTime != null, Orders::getOrderTime, endTime)
+                .orderByDesc(Orders::getOrderTime);
 
         this.page(pageInfo, ordersLambdaQueryWrapper);
 

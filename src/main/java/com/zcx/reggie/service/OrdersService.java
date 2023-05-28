@@ -8,5 +8,5 @@ import com.zcx.reggie.dto.OrdersDto;
 public interface OrdersService extends IService<Orders> {
     void submit(Orders orders);
 
-    Page<OrdersDto> pageForOrdersDto(int page, int pageSize);
+    Page<OrdersDto> pageForOrdersDto(int page, int pageSize, String number, String beginTime, String endTime);
 }
