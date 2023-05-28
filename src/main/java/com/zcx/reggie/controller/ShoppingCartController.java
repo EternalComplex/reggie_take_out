@@ -38,34 +38,9 @@ public class ShoppingCartController {
     public R<ShoppingCart> add(@RequestBody ShoppingCart shoppingCart) {
         log.info("菜品信息：{}", shoppingCart);
 
-        // 设置用户id，指定当前菜品是哪个用户的购物车数据
-        Long userId = BaseContext.getCurrentId();
-        shoppingCart.setUserId(userId);
+        ShoppingCart cart = shoppingCartService.add(shoppingCart);
 
-        // 查询当前菜品或套餐是否已经在购物车中
-        Long dishId = shoppingCart.getDishId();
-        Long setmealId = shoppingCart.getSetmealId();
-        String dishFlavor = shoppingCart.getDishFlavor();
-
-        LambdaQueryWrapper<ShoppingCart> shoppingCartLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        shoppingCartLambdaQueryWrapper
-                .eq(ShoppingCart::getUserId, userId)
-                // 以下eq只会二选一
-                .eq(dishId != null, ShoppingCart::getDishId, dishId)  // 添加的是菜品
-                .eq(setmealId != null, ShoppingCart::getSetmealId, setmealId);    // 添加的是套餐
-
-        ShoppingCart cart = shoppingCartService.getOne(shoppingCartLambdaQueryWrapper);
-
-        // 若购物车中已存在，则数量加一进行更新操作，否则新加一条数据
-        if (cart != null) {
-            cart.setNumber(cart.getNumber() + 1);
-            shoppingCartService.updateById(cart);
-        } else {
-            shoppingCart.setNumber(1);
-            shoppingCartService.save(shoppingCart);
-            cart = shoppingCart;
-        }
-
+        // 需返回前端需要的添加后的完整信息
         return R.success(cart);
     }
 
@@ -76,29 +51,11 @@ public class ShoppingCartController {
      */
     @PostMapping("/sub")
     public R<ShoppingCart> sub(@RequestBody ShoppingCart shoppingCart) {
-        Long userId = BaseContext.getCurrentId();
-        Long dishId = shoppingCart.getDishId();
-        Long setmealId = shoppingCart.getSetmealId();
+        log.info("菜品信息：{}", shoppingCart);
 
-        LambdaQueryWrapper<ShoppingCart> shoppingCartLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        shoppingCartLambdaQueryWrapper.eq(ShoppingCart::getUserId, userId)
-                .eq(dishId != null, ShoppingCart::getDishId, dishId)
-                .eq(setmealId != null, ShoppingCart::getSetmealId, setmealId);
+        ShoppingCart cart = shoppingCartService.sub(shoppingCart);
 
-        ShoppingCart cart = shoppingCartService.getOne(shoppingCartLambdaQueryWrapper);
-
-        if (cart != null) {
-            int number = cart.getNumber() - 1;
-
-            cart.setNumber(number);
-            shoppingCartService.updateById(cart);
-
-            if (number == 0) {
-                shoppingCartService.remove(shoppingCartLambdaQueryWrapper);
-            }
-
-            return R.success(cart);
-        } else return R.error("购物车中没有该菜品/套餐信息");
+        return R.success(cart);
     }
 
     /**
