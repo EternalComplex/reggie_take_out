@@ -29,7 +29,7 @@ public class UserController {
     private UserService userService;
 
     @Resource
-    private StringRedisTemplate redisTemplate;
+    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 发送手机短信验证码
@@ -49,7 +49,7 @@ public class UserController {
 //            session.setAttribute(phone, code);
 
             // 将生成的验证码缓存到redis中，并设置5分钟的有效期
-            redisTemplate.opsForValue().set(phone, code, 5, TimeUnit.MINUTES);
+            stringRedisTemplate.opsForValue().set(phone, code, 5, TimeUnit.MINUTES);
 
 
             log.info("生成的验证码为：{}", code);
@@ -87,10 +87,10 @@ public class UserController {
 //        String codeInSession = session.getAttribute(phone);
 
         // 从redis中获取缓存的验证码
-        String codeInRedis = redisTemplate.opsForValue().get(phone);
+        String codeInRedis = stringRedisTemplate.opsForValue().get(phone);
 
         // 验证码比对
-        if (session.getAttribute(phone) != null && codeInRedis.equals(code)) {
+        if (code.equals(codeInRedis)) {
             // 判断当前手机号是否为新用户，若是新用户则自动完成注册
             LambdaQueryWrapper<User> userLambdaQueryWrapper = new LambdaQueryWrapper<>();
             userLambdaQueryWrapper.eq(User::getPhone, phone);
@@ -107,7 +107,7 @@ public class UserController {
             session.setAttribute("user", user.getId());
 
             // 用户登录成功，删除redis中缓存的验证码
-            redisTemplate.delete(phone);
+            stringRedisTemplate.delete(phone);
 
             return R.success(user);
         }
