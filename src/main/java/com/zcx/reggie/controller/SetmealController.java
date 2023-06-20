@@ -5,9 +5,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zcx.reggie.bean.Setmeal;
 import com.zcx.reggie.common.R;
 import com.zcx.reggie.dto.SetmealDto;
-import com.zcx.reggie.service.SetmealDishService;
 import com.zcx.reggie.service.SetmealService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -24,18 +25,34 @@ public class SetmealController {
     @Resource
     private SetmealService setmealService;
 
-    @Resource
-    private SetmealDishService setmealDishService;
-
     /**
      * 新增套餐
      * @param setmealDto 套餐信息
      * @return 返回新增结果
      */
     @PostMapping
+    @CacheEvict(value = "setmealCache", allEntries = true)
     public R<String> save(@RequestBody SetmealDto setmealDto) {
+        log.info("套餐信息: {}", setmealDto);
         setmealService.saveWithDish(setmealDto);
         return R.success("新增套餐成功");
+    }
+
+    /**
+     * 根据id返回套餐信息
+     * @param setmealId 套餐id
+     * @return 返回套餐及菜品信息
+     */
+    @GetMapping("/{setmealId}")
+    public R<SetmealDto> get(@PathVariable String setmealId) {
+        SetmealDto setmealDto = setmealService.getByIdWithSetmealDto(setmealId);
+        return R.success(setmealDto);
+    }
+
+    @PutMapping
+    public R<String> update(@RequestBody SetmealDto setmealDto) {
+        log.info("套餐信息: {}", setmealDto);
+        return R.success("套餐信息修改成功");
     }
 
     /**
@@ -72,6 +89,7 @@ public class SetmealController {
      * @return 返回删除结果
      */
     @DeleteMapping
+    @CacheEvict(value = "setmealCache", allEntries = true)
     public R<String> delete(String ids) {
         log.info(ids);
 
@@ -86,6 +104,7 @@ public class SetmealController {
      * @return 返回查询结果
      */
     @GetMapping("/list")
+    @Cacheable(value = "setmealCache", key = "#setmeal.categoryId + '_' + #setmeal.status")
     public R<List<Setmeal>> list(Setmeal setmeal) {
         log.info("查询条件：{}", setmeal);
 

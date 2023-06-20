@@ -14,4 +14,6 @@ public interface SetmealService extends IService<Setmeal> {
     public void updateStatusByIds(int st, String ids);
 
     void removeByIdWithDish(String ids);
+
+    SetmealDto getByIdWithSetmealDto(String setmealId);
 }

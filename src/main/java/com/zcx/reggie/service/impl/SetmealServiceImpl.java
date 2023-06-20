@@ -126,4 +126,29 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
             setmealDishService.remove(setmealDishLambdaQueryWrapper);
         }
     }
+
+    /**
+     * 根据id返回套餐信息
+     * @param setmealId 套餐id
+     * @return 返回套餐及菜品信息
+     */
+    @Override
+    public SetmealDto getByIdWithSetmealDto(String setmealId) {
+        SetmealDto setmealDto = new SetmealDto();
+
+        LambdaQueryWrapper<SetmealDish> setmealDishLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        setmealDishLambdaQueryWrapper.eq(setmealId != null, SetmealDish::getSetmealId, setmealId)
+                .orderByDesc(SetmealDish::getCreateTime);
+        List<SetmealDish> setmealDish = setmealDishService.list(setmealDishLambdaQueryWrapper);
+
+        setmealDto.setSetmealDishes(setmealDish);
+
+        Setmeal setmeal = this.getById(setmealId);
+        BeanUtils.copyProperties(setmeal, setmealDto);
+
+        Category category = categoryService.getById(setmeal.getCategoryId());
+        setmealDto.setCategoryName(category.getName());
+
+        return setmealDto;
+    }
 }
